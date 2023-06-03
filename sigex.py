@@ -2,17 +2,32 @@ import tkinter as tk
 from tkinter import filedialog
 import tkinter.ttk as ttk
 from asammdf import MDF
+from pathlib import Path
+
 
 def load():
     file = filedialog.askopenfilename()
-    mdf = MDF(file)
-    print(mdf)
-    channels = mdf.iter_channels()
-    print(channels)
-    for channel in channels:
-        print(channel.name)
-        signals_loaded.append(channel.name)
+    if file:   
+        global signals_loaded, signals_selected
+        signals_loaded = []
+        signals_selected = [] 
+        signals_selected_var.set(signals_selected)
+
+        global mdf 
+        mdf = MDF(file)   
+
+        channels = mdf.iter_channels()
+        for channel in channels:
+            signals_loaded.append(channel.name)
         signals_loaded_var.set(signals_loaded)
+        
+
+def save():
+    if signals_selected:
+        file = filedialog.asksaveasfilename(initialfile=Path(mdf.name).stem + "_extracted")
+        if file:
+            mdf.filter(signals_selected).save(file, overwrite=True)
+   
 
 def select_signal():
     idx_selection = lb_signals_loaded.curselection()
@@ -28,11 +43,16 @@ def deselect_signal():
     signals_selected_var.set(signals_selected)
 
 
+
     
 root = tk.Tk()
+root.title("Signal Extractor")
 
 btn_open = ttk.Button(text="Load", command=load)
 btn_open.grid(row=0, column=0)
+
+btn_write = ttk.Button(text="Write", command=save)
+btn_write.grid(row=0, column=2)
 
 
 signals_loaded = []
@@ -52,14 +72,6 @@ btn_select.grid(row=2, column=1, sticky="ns")
 
 btn_deselect = ttk.Button(text=("<"), command=deselect_signal)
 btn_deselect.grid(row=3, column=1, sticky="ns")
-
-# root.rowconfigure(list(range(3)), minsize=50, weight=1)
-# root.columnconfigure(list(range(2)),minsize=50, weight=1)
-
-
-# btn_accept.grid(row=0, column=1, rowspan=2,  sticky="ns")
-# lbl_display.grid(row=3, column=0)
-
 
 root.mainloop()
 
