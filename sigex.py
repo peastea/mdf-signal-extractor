@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import filedialog
+from tkinter import messagebox
 import tkinter.ttk as ttk
 from asammdf import MDF
 from pathlib import Path
@@ -7,28 +8,9 @@ import json
 
 
 def load_from_mdf():
-    # file = filedialog.askopenfilename(filetypes = (("mf4","*.mf4"),))
-    # if file:           
-    #     reset_selection() 
-
-    #     global mdf 
-    #     mdf = MDF(file)   
-
-    #     channels = mdf.iter_channels()
-    #     for channel in channels:
-    #         global signals_loaded
-    #         signals_loaded.append(channel.name)
-    #     signals_loaded_var.set(signals_loaded)
     load((("mf4","*.mf4"),))
 
 def load_from_json():
-    # file = filedialog.askopenfilename(filetypes = (("json","*.json"),))
-    # if file:           
-    #     reset_selection() 
-    #     with open(file, 'r') as f:
-    #         global signals_loaded
-    #         signals_loaded = json.load(f)
-    #         signals_loaded_var.set(signals_loaded)
     load((("json","*.json"),))
 
 def load(filetypes):
@@ -38,9 +20,7 @@ def load(filetypes):
         reset_selection() 
 
         if file.endswith('.mf4'):
-            global mdf 
             mdf = MDF(file)   
-
             channels = mdf.iter_channels()
             for channel in channels:                
                 signals_loaded.append(channel.name)
@@ -59,16 +39,38 @@ def reset_selection():
     signals_selected_var.set(signals_selected)
         
 
-def extract():
+def extract_file():
     if signals_selected:
-        if mdf:
-            file = filedialog.asksaveasfilename(defaultextension='mf4',initialfile=Path(mdf.name).stem + "_extracted")
-            
-        else:
-            file = filedialog.asksaveasfilename(defaultextension='mf4')
-        
+        file = filedialog.askopenfilename(filetypes = (("mf4","*.mf4"),))
         if file:
-            mdf.filter(signals_selected).save(file, overwrite=True)
+            mdf_to_extract = MDF(file)
+            extract_path = filedialog.asksaveasfilename(defaultextension='mf4',initialfile=Path(mdf_to_extract.name).stem + "_extracted")
+            if extract_path:
+                mdf_to_extract.filter(signals_selected).save(extract_path, overwrite=True)
+
+def extract_dir():
+    if signals_selected:
+        
+        dir = filedialog.askdirectory(title='Select MDF dir')
+        if dir:
+            dirpath = Path(dir)
+            list_mdf = []
+            for file_to_load in dirpath.rglob('*.mf4'):
+                list_mdf.append(MDF(file_to_load))
+
+            destination_path = filedialog.askdirectory(title='Select destination dir')
+            if destination_path:
+                for mdf in list_mdf:
+                    print(destination_path + '/'+  Path(mdf.name).stem + 'extracted')
+                    #mdf.filter(signals_selected).save(destination_path + '/'+ Path(mdf.name).stem + '_extracted', overwrite=True)
+                    try: 
+                        mdf.filter(signals_selected).save(destination_path + '/'+ Path(mdf.name).stem + '_extracted', overwrite=True)
+                    except Exception as e:
+                        errormsg = str(e) + ' at ' + destination_path + '/'+ Path(mdf.name).stem
+                        messagebox.showerror(message=errormsg )
+
+            
+            
 
 def save_to_json():
     if signals_selected:
@@ -76,7 +78,6 @@ def save_to_json():
         if file: 
             with open(file, 'w') as f:
                 json.dump(signals_selected, f, indent=2)
-
 
 
 def select_signal():
@@ -136,7 +137,7 @@ btn_open.grid(row=0, column=0)
 btn_write = ttk.Button(text="Save", command=save_to_json)
 btn_write.grid(row=0, column=2)
 
-btn_extract = ttk.Button(text="Extract", command=extract)
+btn_extract = ttk.Button(text="Extract", command=extract_dir)
 btn_extract.grid(row=6, column=0, columnspan=3, sticky='nesw')
 
 
