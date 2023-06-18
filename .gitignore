@@ -158,3 +158,21 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+sigex-env/pyvenv.cfg
+sigex-env/Scripts/activate
+sigex-env/Scripts/activate.bat
+sigex-env/Scripts/Activate.ps1
+sigex-env/Scripts/asammdf.exe
+sigex-env/Scripts/cancompare.exe
+sigex-env/Scripts/canconvert.exe
+sigex-env/Scripts/deactivate.bat
+sigex-env/Scripts/f2py.exe
+sigex-env/Scripts/futurize-script.py
+sigex-env/Scripts/futurize.exe
+sigex-env/Scripts/pasteurize-script.py
+sigex-env/Scripts/pasteurize.exe
+sigex-env/Scripts/pip.exe
+sigex-env/Scripts/pip3.11.exe
+sigex-env/Scripts/pip3.exe
+sigex-env/Scripts/python.exe
+sigex-env/Scripts/pythonw.exe
